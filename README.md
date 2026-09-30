@@ -8,7 +8,7 @@
 - 网关监听地址不覆盖（沿用镜像默认 `MAGPIE_ADDR=0.0.0.0:3425`），微服入口才能把 `/v1`、`/v1beta` 转发进来
 - `user: root`：镜像以 nonroot 运行，而 `/lzcapp/var/config` 由平台以 root 创建，用 root 启动保证配置可写
 - 控制台 Key：安装向导参数 `web_key`（默认 `sk-magpie-lazycat-web`）。magpie 的控制台必须带 `?k=<Key>`（或对应 Cookie `magpie_web_3430`），而启动器 entry 不能渲染模板参数，所以用 `on: request` 的 inject 在请求 `/` 时 303 到 `/?k=<web_key>`，客户端打开即自动带上；`/v1*`、`/api/*`、静态资源不碰
-- `public_path` 只放 `/v1`、`/v1beta`：agent / CLI 没法过微服登录，这两条路径由网关自己的共享 Key 把关；控制台留在微服账号鉴权之后
+- `public_path: [/]`：整个应用关闭微服账号鉴权（agent / CLI / 手机不必先过微服登录）。控制台改由 Web Key 把门——客户端打开由 inject 自动带上，其他入口用 `/?k=<Web Key>`；网关由控制台的「Share on local network」共享 Key 把门，没打开共享前网关接受任意 Key（上游设计）
 - 数据（账号、API Key、登录态）持久化在 `/lzcapp/var/config`
 
 ## 使用

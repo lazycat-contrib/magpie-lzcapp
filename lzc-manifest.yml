@@ -13,13 +13,11 @@ application:
       disable_trim_location: true
     - location: /
       backend: http://magpie:3430/
-  # /v1* 关闭微服账号密码鉴权：agent / CLI 没法过微服登录，这两条路径由网关自己的共享 Key 把关。
-  # 控制台（/）留在微服鉴权之后；访问密钥由下面的 inject 按向导设置自动注入到 URL。
+  # 整个应用关闭微服账号密码鉴权：控制台由 Web Key 把门（客户端打开时 inject 自动带上，
+  # 其他入口用 /?k=<Web Key>），网关由控制台的「Share on local network」共享 Key 把门，
+  # agent / CLI / 手机都不必先过微服登录。
   public_path:
-    - /v1
-    - /v1/*
-    - /v1beta
-    - /v1beta/*
+    - /
   entries:
     # 入口不带 Key：客户端打开时由下面的 inject 把向导里设置的 web_key 注入到 URL
     - id: console
