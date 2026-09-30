@@ -14,57 +14,18 @@ application:
     - location: /
       backend: http://magpie:3430/
   # /v1* 关闭微服账号密码鉴权：agent / CLI 没法过微服登录，这两条路径由网关自己的共享 Key 把关。
-  # 控制台（/）留在微服鉴权之后：下面的 inject 会按向导里设置的 Web Key 自动补 Cookie，打开即进。
+  # 控制台（/）留在微服鉴权之后；Key 固定、入口带这个 Key，不用 ctx 注入，对所有入口一致。
   public_path:
     - /v1
     - /v1/*
     - /v1beta
     - /v1beta/*
   entries:
-    # 入口不需要带 Key（entry 不渲染模板参数，写死 Key 又无法和向导保持一致）
+    # entry 不渲染模板参数，写死 Key 又无法和向导值保持一致；
+    # 所以干脆不做向导参数：Key 固定，入口带这个固定 Key，对任何入口都成立
     - id: console
       title: "Magpie 控制台"
-      path: /
-  injects:
-    # magpie 控制台自带 Key 墙（?k= 换 Cookie，Cookie 名 magpie_web_<端口>）。
-    # 请求阶段直接给控制台上游请求补上 Cookie：用户打开应用即进控制台，
-    # Key 取向导里的 web_key，用户改什么都没关系。只作用于控制台路径，/v1* 原样放过。
-    # 注意：若把 / 也加进 public_path，这条 inject 就等于对所有人免 Key 开放控制台。
-    - id: console-web-key
-      on: request
-      auth_required: false
-      when:
-        - /
-        - /*
-      do:
-        - src: |
-            try {
-              var key = ctx.params && ctx.params.key;
-              var path = ctx.request.path || "";
-              if (key && path.indexOf("/v1") !== 0) {
-                ctx.headers.set("Cookie", "magpie_web_3430=" + key);
-              }
-            } catch (e) { console.log("console-web-key inject:", e); }
-          params:
-            key: "{{ .U.web_key }}"
-    # 兜底：万一上面的 Cookie 注入被平台过滤，把未带 Key 的 401 改写成带 Key 的 303，
-    # magpie 校验后给浏览器写 Cookie（Cookie 名随端口，这里是 3430）。脚本出错只记日志、原样放过。
-    - id: console-web-key-401
-      on: response
-      auth_required: false
-      when:
-        - /
-      do:
-        - src: |
-            try {
-              var key = ctx.params && ctx.params.key;
-              var q = ctx.request.raw_query || "";
-              if (key && ctx.status === 401 && q.indexOf("k=") === -1) {
-                ctx.response.send(303, "", { location: "/?k=" + key });
-              }
-            } catch (e) { console.log("console-web-key-401 inject:", e); }
-          params:
-            key: "{{ .U.web_key }}"
+      path: /?k=sk-magpie-lazycat-web
 services:
   magpie:
     user: root
@@ -77,7 +38,7 @@ services:
     command: web --addr 0.0.0.0:3430 --no-open
     environment:
       # 控制台访问密钥，固定下来（否则每次重启都会换 Key）
-      - MAGPIE_WEB_KEY={{ .U.web_key }}
+      - MAGPIE_WEB_KEY=sk-magpie-lazycat-web
       # 网关监听地址不覆盖，用镜像默认的 0.0.0.0:3425：微服入口要把 /v1、/v1beta 转发进来。
       # 未在控制台打开「Share on local network」前，网关按上游设计对外接受任意 Key，
       # 所以安装后请尽快在控制台开启共享（见 usage）。
@@ -87,9 +48,10 @@ usage: |
   Magpie 把各家模型接到一处，给 Codex / Claude Code / OpenCode 等 agent 提供统一网关（OpenAI / Anthropic / Gemini 兼容）。
 
   【打开控制台】
-  直接点启动器入口或打开应用域名即可进入控制台（服务端会自动补上访问密钥，不用记 Key）。手动登录也可以：
-      https://你的域名/?k=<Web Key>
-  Web Key 在安装向导里填写（默认 sk-magpie-lazycat-web；至少 16 个字符，只能用字母、数字与 - . _ ~）。改成别的值也不用同步任何地方——打开应用时 inject 会按当前值自动带上，带一次后写入 Cookie。
+  点启动器里的「Magpie 控制台」入口即可（入口已带访问密钥）。在浏览器里手动打开时，请用：
+      https://你的域名/?k=sk-magpie-lazycat-web
+  带 Key 打开一次后会写入 Cookie（有效期 400 天），之后裸域名也能进。控制台仍在微服账号鉴权之后，
+  这个 Key 只是 magpie 自己的一道门槛。
 
   【让外部 agent 用上网关】
   1. 先打开控制台，进入 Settings → Share on local network，打开局域网共享，它会生成一个 sk-magpie-… 的 Key；

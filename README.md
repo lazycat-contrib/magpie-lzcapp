@@ -7,11 +7,11 @@
 - 路由：`/` → 控制台（3430），`/v1`、`/v1beta` → 网关（3425）；网关的 OpenAI / Anthropic / Gemini 路径都落在这两个前缀下
 - 网关监听地址不覆盖（沿用镜像默认 `MAGPIE_ADDR=0.0.0.0:3425`），微服入口才能把 `/v1`、`/v1beta` 转发进来
 - `user: root`：镜像以 nonroot 运行，而 `/lzcapp/var/config` 由平台以 root 创建，用 root 启动保证配置可写
-- `public_path` 只放 `/v1`、`/v1beta`：agent / CLI 没法过微服登录，这两条路径由网关自己的共享 Key 把关；控制台仍留在微服账号鉴权之后
-- Web Key：安装向导参数，默认 `sk-magpie-lazycat-web`。entry 不渲染模板参数、也不该写死 Key，所以改用 inject：请求阶段按 `web_key` 的值给控制台上游补 `Cookie: magpie_web_3430=<key>`，打开应用即进控制台；另有一条 `on: response` 兜底，把未带 Key 的 401 改写成带 Key 的 303。改 Key 无需同步入口
+- 控制台访问控制：**不做安装向导参数**，`MAGPIE_WEB_KEY` 固定为 `sk-magpie-lazycat-web`，启动器入口直接带这个 Key（`/?k=sk-magpie-lazycat-web`）。原因：entry 不渲染模板参数；写死 Key 又无法与用户自设值保持一致；而 `ctx` 注入只在懒猫客户端链路上生效，覆盖不了浏览器直连等入口
+- `public_path` 只放 `/v1`、`/v1beta`：agent / CLI 没法过微服登录，这两条路径由网关自己的共享 Key 把关；控制台留在微服账号鉴权之后，那个固定 Key 只是 magpie 自己的一道门槛
 - 数据（账号、API Key、登录态）持久化在 `/lzcapp/var/config`
 
-## 安装后要做的两步
+## 使用
 
-1. 打开控制台（点启动器入口或直接打开应用域名即可，服务端会自动补上 Web Key）。需要手动登录时用 `https://<域名>/?k=<Web Key>`。
-2. Settings → Share on local network 打开共享，记下生成的 `sk-magpie-…` Key，然后让 agent 连 `https://<域名>/v1`（OpenAI 兼容）或 `https://<域名>`（Anthropic / Gemini），API Key 填共享 Key。没打开共享前网关接受任意 Key，这是上游设计，所以请先完成这一步。
+1. 打开控制台：点启动器入口；浏览器直连时用 `https://<域名>/?k=sk-magpie-lazycat-web`（带一次后写入 400 天 Cookie）
+2. Settings → Share on local network 打开共享，记下生成的 `sk-magpie-…` Key，然后让 agent 连 `https://<域名>/v1`（OpenAI 兼容）或 `https://<域名>`（Anthropic / Gemini），API Key 填共享 Key。没打开共享前网关接受任意 Key，这是上游设计，所以请先完成这一步
