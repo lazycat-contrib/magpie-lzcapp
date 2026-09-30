@@ -3,7 +3,7 @@ params:
       type: string
       name: "Web Key"
       description: "Key for the browser console: open https://<your-domain>/?k=<this key> once and it is remembered as a cookie. The launcher entry already carries it."
-      default_value: "sk-magpie-web"
+      default_value: "sk-magpie-lazycat-web"
 
 locales:
     zh:

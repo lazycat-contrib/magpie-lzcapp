@@ -44,8 +44,21 @@ stores:
     application:
       language: zh
       name: Magpie
+      brief: 把各家大模型接到一处，给 Codex、Claude Code 等 Agent 一个统一的模型网关
+      description: |
+        Magpie 让 Codex、Claude Code、OpenCode、Cursor、Gemini CLI 等 Agent 共用一份模型配置：
+        在一个网页控制台里添加供应商或登录订阅账号，Agent 侧只改一行 Base URL，就能互相切换、
+        共享同一个模型目录。网关同时兼容 OpenAI（Chat Completions / Responses）、Anthropic 与
+        Gemini 三种 API，流式输出、工具调用与思考过程都会原样翻译过去；控制台还能查看每次请求
+        的路由过程、用量与供应商健康度。数据（账号、密钥、登录态）都留在你自己的懒猫微服里。
+      keywords: AI 网关,模型网关,Codex,Claude Code,OpenCode,OpenAI,Anthropic,Gemini
       source: https://github.com/yetone/magpie
       source_author: yetone
+      support_pc: true
+      screenshot_pc_files:
+        - .github/screenshots/pc-1-gateway.png
+        - .github/screenshots/pc-2-providers.png
+        - .github/screenshots/pc-3-routing.png
   private:
     enabled: true
     skip_if_version_exists: true

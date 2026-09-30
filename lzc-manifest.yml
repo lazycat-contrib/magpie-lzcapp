@@ -49,7 +49,7 @@ usage: |
   【打开控制台】
   点启动器里的「Magpie 控制台」入口（已带 Web Key），或手动访问：
       https://你的域名/?k=<Web Key>
-  Web Key 在安装向导里填写（默认 sk-magpie-web）。带 Key 打开一次后会写入 Cookie，之后直接访问域名即可。
+  Web Key 在安装向导里填写（默认 sk-magpie-lazycat-web；至少 16 个字符，只能用字母、数字与 - . _ ~）。带 Key 打开一次后会写入 Cookie，之后直接访问域名即可。
 
   【让外部 agent 用上网关】
   1. 先打开控制台，进入 Settings → Share on local network，打开局域网共享，它会生成一个 sk-magpie-… 的 Key；
