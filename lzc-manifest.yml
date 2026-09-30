@@ -12,52 +12,33 @@ application:
       backend: http://magpie:3425
       disable_trim_location: true
     - location: /
-      backend: http://magpie:3430/
-  # 整个应用关闭微服账号密码鉴权：控制台由 Web Key 把门（客户端打开时 inject 自动带上，
-  # 其他入口用 /?k=<Web Key>），网关由控制台的「Share on local network」共享 Key 把门，
-  # agent / CLI / 手机都不必先过微服登录。
+      backend: http://magpie:3430
+  # / 与 /v1* 都关闭微服账号密码鉴权：控制台用自己的 Web Key，网关用共享 Key，
+  # 手机 / agent / CLI 不必先过微服登录。
   public_path:
     - /
   entries:
-    # 入口带一个空的 k=：平台/启动器对纯 / 的入口不友好，而空 k 本身进不去
-    # （magpie 会当成「k 值不对」直接 401），所以由下面的 inject 把它换成真实的 web_key
+    # 启动器入口不渲染模板参数（写 {{ .U.web_key }} 会原样带出去），所以入口只打开根路径；
+    # 下面 console-key 的 inject 会在响应阶段把未带 Key 的 401 改写成带 Key 的跳转。
     - id: console
       title: "Magpie 控制台"
-      path: "/?k="
+      path: /
   injects:
-    # magpie 控制台有自己的 Key 墙：要 /?k=<Web Key>（它与 Cookie magpie_web_<端口> 互换）。
-    # 请求阶段补一次：请求 / 时若 k 为空（入口带的就是空 k）或没带 k、且还没有 Cookie，
-    # 303 到 /?k=<向导里的 web_key>，用户设置的 Key 改什么都对得上；其他 query 参数保留。
-    # 只拦页面路径 /，/api/*、/v1* 与静态资源都不碰。
-    # 注：ctx 只在懒猫客户端链路上生效；其他入口请手动 https://域名/?k=<Web Key>。
-    - id: console-web-key
-      on: request
+    # 浏览器不带 Key 打开 / 时 magpie 回 401「open the link magpie web printed」，
+    # 在响应阶段把它改写成 303 跳转到 ?k=<Web Key>，点开应用即无感进入控制台。
+    # 脚本出错只记日志、原样放过。
+    - id: console-key
+      on: response
       auth_required: false
       when:
         - /
       do:
         - src: |
             try {
-              var key = ctx.params && ctx.params.key;
-              var q = ctx.request.raw_query || "";
-              var cookie = ctx.headers.get("Cookie") || "";
-              var parts = q ? q.split("&") : [];
-              var hasKey = false;
-              var keep = [];
-              for (var i = 0; i < parts.length; i++) {
-                var p = parts[i];
-                if (p.indexOf("k=") === 0) {
-                  // 入口带的是空的 k=，只有非空才是真的带上 Key
-                  if (p.length > 2) { hasKey = true; }
-                } else if (p) {
-                  keep.push(p);
-                }
+              if (ctx.status === 401 && ctx.params && ctx.params.key) {
+                ctx.response.send(303, "", { location: "/?k=" + encodeURIComponent(ctx.params.key) });
               }
-              if (key && !hasKey && cookie.indexOf("magpie_web_3430=") === -1) {
-                var loc = "/?" + (keep.length ? keep.join("&") + "&" : "") + "k=" + key;
-                ctx.response.send(303, "", { location: loc });
-              }
-            } catch (e) { console.log("console-web-key inject:", e); }
+            } catch (e) { console.log("console-key inject:", e); }
           params:
             key: "{{ .U.web_key }}"
 services:
@@ -82,10 +63,10 @@ usage: |
   Magpie 把各家模型接到一处，给 Codex / Claude Code / OpenCode 等 agent 提供统一网关（OpenAI / Anthropic / Gemini 兼容）。
 
   【打开控制台】
-  · 懒猫客户端里点启动器入口即可：服务端会把访问密钥注入到地址里，打开即进；
-  · 用其他浏览器或工具打开时，手动访问：https://你的域名/?k=<Web Key>
-  Web Key 在安装向导里填写（默认 sk-magpie-lazycat-web；至少 16 个字符，只能用字母、数字与 - . _ ~）。
-  带 Key 打开一次后会写入 Cookie（有效期 400 天），之后裸域名也能进。控制台仍在微服账号鉴权之后。
+  直接点启动器入口或打开应用域名即可（服务端会自动跳到带 Key 的地址）；也可以手动访问：
+      https://你的域名/?k=<Web Key>
+  Web Key 在安装向导里填写（默认 sk-magpie-lazycat-web；至少 16 个字符，只能用字母、数字与 - . _ ~）。带 Key 打开一次后会写入 Cookie，之后裸域名即可。
+  注意：控制台只由这个 Web Key 保护（本应用已关闭微服账号鉴权），默认值在开源仓库里可见，建议在安装向导里改成只有你知道的 Key。
 
   【让外部 agent 用上网关】
   1. 先打开控制台，进入 Settings → Share on local network，打开局域网共享，它会生成一个 sk-magpie-… 的 Key；
