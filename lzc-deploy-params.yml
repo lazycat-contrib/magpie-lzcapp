@@ -2,21 +2,21 @@ params:
     - id: web_key
       type: string
       name: "Web Key"
-      description: "Key for the browser console: open https://<your-domain>/?k=<this key> once and it is remembered as a cookie. The launcher entry already carries it."
+      description: "Key for the browser console (16+ chars, letters/digits/ - . _ ~). Opening the app domain signs you in automatically; you can also open https://<your-domain>/?k=<this key> once, then a cookie remembers it. The console is protected by this key alone, so pick your own."
       default_value: "sk-magpie-lazycat-web"
 
 locales:
     zh:
         web_key:
             name: "控制台 Web Key"
-            description: "打开网页控制台所需的密钥：访问 https://你的域名/?k=该密钥 一次即可（会写入 Cookie，之后直接访问域名）。启动器里的「Magpie 控制台」入口已带此 Key，改这里后入口会自动跟随。"
+            description: "打开网页控制台所需的密钥（至少 16 个字符，只能用字母、数字与 - . _ ~）。直接打开应用域名会自动跳转带上它，也可手动访问 https://你的域名/?k=该密钥；带 Key 打开一次后写入 Cookie。控制台只由这个 Key 保护，建议改成只有你知道的值。"
 
     zh_CN:
         web_key:
             name: "控制台 Web Key"
-            description: "打开网页控制台所需的密钥：访问 https://你的域名/?k=该密钥 一次即可（会写入 Cookie，之后直接访问域名）。启动器里的「Magpie 控制台」入口已带此 Key，改这里后入口会自动跟随。"
+            description: "打开网页控制台所需的密钥（至少 16 个字符，只能用字母、数字与 - . _ ~）。直接打开应用域名会自动跳转带上它，也可手动访问 https://你的域名/?k=该密钥；带 Key 打开一次后写入 Cookie。控制台只由这个 Key 保护，建议改成只有你知道的值。"
 
     en:
         web_key:
             name: "Web Key"
-            description: "Key for the browser console: open https://<your-domain>/?k=<this key> once and it is remembered as a cookie. The launcher entry carries it already."
+            description: "Key for the browser console (16+ chars, letters/digits/ - . _ ~). Opening the app domain signs you in automatically; you can also open https://<your-domain>/?k=<this key> once, then a cookie remembers it. The console is protected by this key alone, so pick your own."

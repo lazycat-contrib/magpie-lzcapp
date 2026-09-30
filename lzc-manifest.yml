@@ -13,13 +13,34 @@ application:
       disable_trim_location: true
     - location: /
       backend: http://magpie:3430/
+  # / 与 /v1* 都关闭微服账号密码鉴权：控制台用自己的 Web Key，网关用共享 Key，
+  # 手机 / agent / CLI 不必先过微服登录。
   public_path:
     - /
   entries:
-    # 入口带了 Web Key，点开即登录控制台（首次访问写入 Cookie，之后可裸域名访问）
+    # 启动器入口不渲染模板参数（写 {{ .U.web_key }} 会原样带出去），所以这里写死默认 Web Key；
+    # 向导里改过 Key 也能进：下面 console-key 的 inject 会把未带 Key 的 401 改写成带 Key 的跳转。
     - id: console
       title: "Magpie 控制台"
-      path: /?k={{ .U.web_key }}
+      path: /?k=sk-magpie-lazycat-web
+  injects:
+    # 浏览器不带 Key 打开 / 时 magpie 回 401「open the link magpie web printed」，
+    # 在响应阶段把它改写成 303 跳转到 ?k=<Web Key>，点开应用即无感进入控制台。
+    # 脚本出错只记日志、原样放过（入口里的默认 Key 仍可用）。
+    - id: console-key
+      on: response
+      auth_required: false
+      when:
+        - /
+      do:
+        - src: |
+            try {
+              if (ctx.status === 401 && ctx.params && ctx.params.key) {
+                ctx.response.send(303, "", { location: "/?k=" + ctx.params.key });
+              }
+            } catch (e) { console.log("console-key inject:", e); }
+          params:
+            key: "{{ .U.web_key }}"
 services:
   magpie:
     user: root
@@ -42,9 +63,10 @@ usage: |
   Magpie 把各家模型接到一处，给 Codex / Claude Code / OpenCode 等 agent 提供统一网关（OpenAI / Anthropic / Gemini 兼容）。
 
   【打开控制台】
-  点启动器里的「Magpie 控制台」入口（已带 Web Key），或手动访问：
+  直接点启动器入口或打开应用域名即可（服务端会自动跳到带 Key 的地址）；也可以手动访问：
       https://你的域名/?k=<Web Key>
-  Web Key 在安装向导里填写（默认 sk-magpie-lazycat-web；至少 16 个字符，只能用字母、数字与 - . _ ~）。带 Key 打开一次后会写入 Cookie，之后直接访问域名即可。
+  Web Key 在安装向导里填写（默认 sk-magpie-lazycat-web；至少 16 个字符，只能用字母、数字与 - . _ ~）。带 Key 打开一次后会写入 Cookie，之后裸域名即可。
+  注意：控制台只由这个 Web Key 保护（本应用已关闭微服账号鉴权），默认值在开源仓库里可见，建议在安装向导里改成只有你知道的 Key。
 
   【让外部 agent 用上网关】
   1. 先打开控制台，进入 Settings → Share on local network，打开局域网共享，它会生成一个 sk-magpie-… 的 Key；
