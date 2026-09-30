@@ -37,10 +37,9 @@ services:
     environment:
       # 控制台访问密钥，固定下来（否则每次重启都会换 Key）
       - MAGPIE_WEB_KEY={{ .U.web_key }}
-      # 覆盖镜像里的 0.0.0.0:3425：在控制台打开「Share on local network」之前
-      # 网关只监听容器内回环，通过域名访问 /v1 会连不上（有意为之，避免裸奔）；
-      # 打开共享后监听会自动切到 0.0.0.0，且外部请求必须携带共享 Key。
-      - MAGPIE_ADDR=127.0.0.1:3425
+      # 网关监听地址不覆盖，用镜像默认的 0.0.0.0:3425：微服入口要把 /v1、/v1beta 转发进来。
+      # 未在控制台打开「Share on local network」前，网关按上游设计对外接受任意 Key，
+      # 所以安装后请尽快在控制台开启共享（见 usage）。
     binds:
       - /lzcapp/var/config:/config
 usage: |
@@ -57,8 +56,8 @@ usage: |
        OpenAI 兼容：base_url = https://你的域名/v1
        Anthropic：  base_url = https://你的域名
        Gemini：     base_url = https://你的域名
-  未打开共享前，网关不会对外服务（容器内只监听回环），端口路径会连接失败，这是有意为之。
-  打开共享后，网关仍会拒绝携带错误 Key 的请求。
+  注意：打开共享之前，网关对能访问到本应用域名的人一律放行（任意 Key 都行，这是上游的默认行为），
+  请安装后先完成第 1 步。打开共享后，请求必须携带上面那个共享 Key，带错 Key 会被拒绝。
 
   【数据】
   账号、API Key、登录态都持久化在 /lzcapp/var/config（容器内 /config），应用升级不丢；需要迁移或备份时整目录拷走即可。

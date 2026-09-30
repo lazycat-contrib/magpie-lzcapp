@@ -7,7 +7,7 @@
 - 路由：`/` → 控制台（3430），`/v1`、`/v1beta` → 网关（3425），网关的三种 API 路径都落在这两个前缀下
 - 控制台有自带 Key（安装向导里的 Web Key，默认 `sk-magpie-lazycat-web`），`?k=` 打开一次后写 Cookie；启动器入口已带 Key
 - 数据（账号、API Key、登录态）持久化在 `/lzcapp/var/config`
-- 镜像默认把网关绑在 `0.0.0.0:3425` 且对外接受任意 Key，这里用 `MAGPIE_ADDR=127.0.0.1:3425` 压回回环：控制台里打开 Settings → Share on local network 之前 `/v1` 不对外服务，打开后监听自动切到 `0.0.0.0` 并要求共享 Key
+- 网关监听地址不覆盖（沿用镜像默认 `MAGPIE_ADDR=0.0.0.0:3425`），微服入口才能把 `/v1`、`/v1beta` 转发进来；未打开「Share on local network」前网关按上游设计对外接受任意 Key，装好后请先在控制台开启共享，之后请求必须携带共享 Key
 
 `public_path` 只对 `/v1`、`/v1beta` 关闭微服账号密码鉴权（agent/CLI 没法过微服登录），网关自身的共享 Key 是这两条路径的鉴权；控制台仍在微服鉴权之后。
 
