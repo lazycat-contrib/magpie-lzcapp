@@ -19,14 +19,16 @@ application:
   public_path:
     - /
   entries:
-    # 入口不带 Key：客户端打开时由下面的 inject 把向导里设置的 web_key 注入到 URL
+    # 入口带一个空的 k=：平台/启动器对纯 / 的入口不友好，而空 k 本身进不去
+    # （magpie 会当成「k 值不对」直接 401），所以由下面的 inject 把它换成真实的 web_key
     - id: console
       title: "Magpie 控制台"
-      path: /
+      path: "/?k="
   injects:
     # magpie 控制台有自己的 Key 墙：要 /?k=<Web Key>（它与 Cookie magpie_web_<端口> 互换）。
-    # 请求阶段补一次：浏览器请求 / 且既没带 k、也还没 Cookie 时，303 到 /?k=<向导里的 web_key>，
-    # 用户设置的 Key 改什么都对得上。只拦页面路径 /，/api/*、/v1* 与静态资源都不碰。
+    # 请求阶段补一次：请求 / 时若 k 为空（入口带的就是空 k）或没带 k、且还没有 Cookie，
+    # 303 到 /?k=<向导里的 web_key>，用户设置的 Key 改什么都对得上；其他 query 参数保留。
+    # 只拦页面路径 /，/api/*、/v1* 与静态资源都不碰。
     # 注：ctx 只在懒猫客户端链路上生效；其他入口请手动 https://域名/?k=<Web Key>。
     - id: console-web-key
       on: request
@@ -39,8 +41,21 @@ application:
               var key = ctx.params && ctx.params.key;
               var q = ctx.request.raw_query || "";
               var cookie = ctx.headers.get("Cookie") || "";
-              if (key && q.indexOf("k=") === -1 && cookie.indexOf("magpie_web_3430=") === -1) {
-                ctx.response.send(303, "", { location: "/?" + (q ? q + "&" : "") + "k=" + key });
+              var parts = q ? q.split("&") : [];
+              var hasKey = false;
+              var keep = [];
+              for (var i = 0; i < parts.length; i++) {
+                var p = parts[i];
+                if (p.indexOf("k=") === 0) {
+                  // 入口带的是空的 k=，只有非空才是真的带上 Key
+                  if (p.length > 2) { hasKey = true; }
+                } else if (p) {
+                  keep.push(p);
+                }
+              }
+              if (key && !hasKey && cookie.indexOf("magpie_web_3430=") === -1) {
+                var loc = "/?" + (keep.length ? keep.join("&") + "&" : "") + "k=" + key;
+                ctx.response.send(303, "", { location: loc });
               }
             } catch (e) { console.log("console-web-key inject:", e); }
           params:
