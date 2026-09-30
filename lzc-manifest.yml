@@ -24,7 +24,7 @@ application:
     # 入口带了 Web Key，点开即登录控制台（首次访问写入 Cookie，之后可裸域名访问）
     - id: console
       title: "Magpie 控制台"
-      path: "/?k={{ .U.web_key }}"
+      path: /?k={{ .U.web_key }}
 services:
   magpie:
     # upstream: ghcr.io/yetone/magpie:0.1.485
