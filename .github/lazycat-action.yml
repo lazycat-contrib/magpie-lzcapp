@@ -1,0 +1,53 @@
+version: 1
+
+project:
+  root: .
+  build_config: lzc-build.yml
+  package_file: package.yml
+  output: build/magpie.lpk
+  target_arch: amd64
+
+update:
+  strategy: publish
+  allow_downgrade: false
+  version_source:
+    type: image
+    image: magpie
+
+build:
+  toolchains: []
+  run_buildscript: false
+
+images:
+  - id: magpie
+    target: service
+    service: magpie
+    source: ghcr.io/yetone/magpie
+    channel: stable
+    # 上游只发 0.1.x 形式的 tag（无 v 前缀），排除 sha256-* 与 latest
+    tag_regex: '^[0-9]+\.[0-9]+\.[0-9]+$'
+    delivery:
+      # 官方商店要求镜像来自懒猫镜像源：由 Action 用 LZC_API_TOKEN 转存并改写 manifest
+      mode: lazycat
+
+stores:
+  official:
+    enabled: true
+    skip_if_version_exists: true
+    create_if_missing: true
+    changelog_locales: [zh, en]
+    retry:
+      enabled: false
+      max_attempts: 3
+      initial_delay: 2s
+      max_delay: 30s
+    application:
+      language: zh
+      name: Magpie
+      source: https://github.com/yetone/magpie
+      source_author: yetone
+  private:
+    enabled: true
+    skip_if_version_exists: true
+    name: Magpie
+    summary: "Magpie 懒猫微服打包：统一模型网关 + 网页控制台（OpenAI / Anthropic / Gemini 兼容）。"

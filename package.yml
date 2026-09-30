@@ -1,0 +1,18 @@
+package: cloud.lazycat.app.magpie
+version: 0.1.474
+name: Magpie
+description: Every agent's model, one place. An OpenAI/Anthropic/Gemini-compatible gateway and web console for Codex, Claude Code, OpenCode and more.
+min_os_version: 1.5.0
+homepage: https://github.com/yetone/magpie
+author: yetone
+license: MIT
+locales:
+  zh:
+    name: "Magpie"
+    description: "把各家大模型接到一处，给 Codex / Claude Code / OpenCode 等 agent 提供统一网关（兼容 OpenAI / Anthropic / Gemini）与网页控制台。"
+  zh_CN:
+    name: "Magpie"
+    description: "把各家大模型接到一处，给 Codex / Claude Code / OpenCode 等 agent 提供统一网关（兼容 OpenAI / Anthropic / Gemini）与网页控制台。"
+  en:
+    name: "Magpie"
+    description: "Every agent's model, one place. An OpenAI/Anthropic/Gemini-compatible gateway and web console for Codex, Claude Code, OpenCode and more."

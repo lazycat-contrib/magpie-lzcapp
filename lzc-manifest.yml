@@ -1,0 +1,64 @@
+application:
+  subdomain: magpie
+  multi_instance: false
+  # 根路径给 Web 控制台(3430)；网关(3425)只放出 /v1、/v1beta 两个 API 前缀。
+  # 网关的 OpenAI(/v1/chat/completions、/v1/responses)、Anthropic(/v1/messages)、
+  # Gemini(/v1beta/...) 全部落在这两个前缀下，根路径不能给网关（会被控制台占用）。
+  upstreams:
+    - location: /v1
+      backend: http://magpie:3425
+      disable_trim_location: true
+    - location: /v1beta
+      backend: http://magpie:3425
+      disable_trim_location: true
+    - location: /
+      backend: http://magpie:3430/
+  # 网关自带 Key 鉴权（见 usage 的「Share on local network」），因此这两条 API 路径
+  # 关闭微服账号密码鉴权，agent/CLI 才能直连；控制台仍走微服鉴权 + 自己的 Web Key。
+  public_path:
+    - /v1
+    - /v1/*
+    - /v1beta
+    - /v1beta/*
+  entries:
+    # 入口带了 Web Key，点开即登录控制台（首次访问写入 Cookie，之后可裸域名访问）
+    - id: console
+      title: "Magpie 控制台"
+      path: "/?k={{ .U.web_key }}"
+services:
+  magpie:
+    # upstream: ghcr.io/yetone/magpie
+    # 官方商店交付（delivery.mode=lazycat）时由 Action 转存为
+    # registry.lazycat.cloud/czyt/yetone/magpie:<hash> 并改写此行
+    image: ghcr.io/yetone/magpie:0.1.474
+    # 镜像默认 CMD 是 serve（只跑网关）；web 会同时把网关起在旁边并监听 3430。
+    # distroless 镜像没有 shell，command 必须以 exec 形式追加到 ENTRYPOINT /magpie 之后。
+    command: web --addr 0.0.0.0:3430 --no-open
+    environment:
+      # 控制台访问密钥，固定下来（否则每次重启都会换 Key）
+      - MAGPIE_WEB_KEY={{ .U.web_key }}
+      # 覆盖镜像里的 0.0.0.0:3425：在控制台打开「Share on local network」之前
+      # 网关只监听容器内回环，通过域名访问 /v1 会连不上（有意为之，避免裸奔）；
+      # 打开共享后监听会自动切到 0.0.0.0，且外部请求必须携带共享 Key。
+      - MAGPIE_ADDR=127.0.0.1:3425
+    binds:
+      - /lzcapp/var/config:/config
+usage: |
+  Magpie 把各家模型接到一处，给 Codex / Claude Code / OpenCode 等 agent 提供统一网关（OpenAI / Anthropic / Gemini 兼容）。
+
+  【打开控制台】
+  点启动器里的「Magpie 控制台」入口（已带 Web Key），或手动访问：
+      https://你的域名/?k=<Web Key>
+  Web Key 在安装向导里填写（默认 sk-magpie-web）。带 Key 打开一次后会写入 Cookie，之后直接访问域名即可。
+
+  【让外部 agent 用上网关】
+  1. 先打开控制台，进入 Settings → Share on local network，打开局域网共享，它会生成一个 sk-magpie-… 的 Key；
+  2. 把 agent 指向应用域名，API Key 填上面那个共享 Key：
+       OpenAI 兼容：base_url = https://你的域名/v1
+       Anthropic：  base_url = https://你的域名
+       Gemini：     base_url = https://你的域名
+  未打开共享前，网关不会对外服务（容器内只监听回环），端口路径会连接失败，这是有意为之。
+  打开共享后，网关仍会拒绝携带错误 Key 的请求。
+
+  【数据】
+  账号、API Key、登录态都持久化在 /lzcapp/var/config（容器内 /config），应用升级不丢；需要迁移或备份时整目录拷走即可。
