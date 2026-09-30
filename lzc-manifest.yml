@@ -22,7 +22,7 @@ application:
       path: /?k={{ .U.web_key }}
 services:
   magpie:
-  user: root
+    user: root
     # upstream: ghcr.io/yetone/magpie:0.1.489
     # 官方商店交付（delivery.mode=lazycat）时由 Action 转存为
     # registry.lazycat.cloud/czyt/yetone/magpie:<hash> 并改写此行
