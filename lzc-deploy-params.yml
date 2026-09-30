@@ -1,0 +1,22 @@
+params:
+    - id: web_key
+      type: string
+      name: "Web Key"
+      description: "Key for the browser console (16+ chars, letters/digits/ - . _ ~). The launcher injects it into the URL automatically; opening the domain in another browser needs https://<your-domain>/?k=<this key> once, then a cookie remembers it."
+      default_value: "sk-magpie-lazycat-web"
+
+locales:
+    zh:
+        web_key:
+            name: "控制台 Web Key"
+            description: "控制台访问密钥（至少 16 个字符，只能用字母、数字与 - . _ ~）。从懒猫客户端打开时会自动注入到地址里；用其他浏览器打开时需手动访问 https://你的域名/?k=该密钥，带一次后写入 Cookie。"
+
+    zh_CN:
+        web_key:
+            name: "控制台 Web Key"
+            description: "控制台访问密钥（至少 16 个字符，只能用字母、数字与 - . _ ~）。从懒猫客户端打开时会自动注入到地址里；用其他浏览器打开时需手动访问 https://你的域名/?k=该密钥，带一次后写入 Cookie。"
+
+    en:
+        web_key:
+            name: "Web Key"
+            description: "Console key (16+ chars, letters/digits/ - . _ ~). The LazyCat client injects it into the URL automatically; other browsers need https://<your-domain>/?k=<this key> once, then a cookie remembers it."
