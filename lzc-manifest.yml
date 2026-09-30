@@ -13,13 +13,8 @@ application:
       disable_trim_location: true
     - location: /
       backend: http://magpie:3430/
-  # 网关自带 Key 鉴权（见 usage 的「Share on local network」），因此这两条 API 路径
-  # 关闭微服账号密码鉴权，agent/CLI 才能直连；控制台仍走微服鉴权 + 自己的 Web Key。
   public_path:
-    - /v1
-    - /v1/*
-    - /v1beta
-    - /v1beta/*
+    - /
   entries:
     # 入口带了 Web Key，点开即登录控制台（首次访问写入 Cookie，之后可裸域名访问）
     - id: console
@@ -27,6 +22,7 @@ application:
       path: /?k={{ .U.web_key }}
 services:
   magpie:
+  user: root
     # upstream: ghcr.io/yetone/magpie:0.1.489
     # 官方商店交付（delivery.mode=lazycat）时由 Action 转存为
     # registry.lazycat.cloud/czyt/yetone/magpie:<hash> 并改写此行
