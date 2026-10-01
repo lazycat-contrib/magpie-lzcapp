@@ -4,11 +4,15 @@ application:
   # 根路径给 Web 控制台(3430)；网关(3425)只放出 /v1、/v1beta 两个 API 前缀。
   # 网关的 OpenAI(/v1/chat/completions、/v1/responses)、Anthropic(/v1/messages)、
   # Gemini(/v1beta/...) 全部落在这两个前缀下，根路径不能给网关（会被控制台占用）。
+  #
+  # ⚠ 路径必须带尾斜杠：rail 的 location 不带尾斜杠时只匹配精确路径
+  # （/v1 能进网关，/v1/models 会掉回 / 落到控制台，表现为 401）。
+  # 带上尾斜杠才是「目录前缀」匹配，/v1/models 这类子路径才会转发到网关。
   upstreams:
-    - location: /v1
+    - location: /v1/
       backend: http://magpie:3425
       disable_trim_location: true
-    - location: /v1beta
+    - location: /v1beta/
       backend: http://magpie:3425
       disable_trim_location: true
     - location: /
