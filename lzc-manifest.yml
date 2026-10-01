@@ -41,6 +41,33 @@ application:
             } catch (e) { console.log("console-key inject:", e); }
           params:
             key: "{{ .U.web_key }}"
+    # magpie 界面上显示的网关地址来自 gateway.URL()（容器内是 http://127.0.0.1:3425），
+    # 没有环境变量可覆盖（MAGPIE_ADDR 只管监听，填域名会让监听失败）。
+    # 这里在响应阶段把状态接口里的这个地址换成当前访问域名：域名取自请求 Host，
+    # 只在使用域名（不带端口、非纯 IP）访问时替换，出错原样放过。
+    - id: gateway-public-url
+      on: response
+      auth_required: false
+      when:
+        - /api/state
+        - /api/settings
+      do:
+        - src: |
+            try {
+              var host = (ctx.request && ctx.request.host) || "";
+              var isIP = host.length > 0;
+              for (var i = 0; i < host.length; i++) {
+                var c = host.charAt(i);
+                if (c !== "." && (c < "0" || c > "9")) { isIP = false; break; }
+              }
+              if (host && host.indexOf(":") === -1 && !isIP) {
+                var body = ctx.body.getText({ max_bytes: 8388608 });
+                var from = "http://127.0.0.1:3425";
+                if (body.indexOf(from) !== -1) {
+                  ctx.body.set(body.split(from).join("https://" + host));
+                }
+              }
+            } catch (e) { console.log("gateway-public-url inject:", e); }
 services:
   magpie:
     user: root
