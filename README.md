@@ -11,8 +11,6 @@
 - `public_path: [/]`：整个应用关闭微服账号鉴权（agent / CLI / 手机不必先过微服登录）。控制台改由 Web Key 把门——客户端打开由 inject 自动带上，其他入口用 `/?k=<Web Key>`；网关由控制台的「Share on local network」共享 Key 把门，没打开共享前网关接受任意 Key（上游设计）
 - 数据（账号、API Key、登录态）持久化在 `/lzcapp/var/config`
 
-- 界面里的网关 Base URL：magpie 显示的是 `gateway.URL()`（容器内 `http://127.0.0.1:3425`），没有环境变量可改。用 `on: response` 的 inject 把 `/api/state`、`/api/settings` 里的这个地址换成当前访问域名（取自请求 Host，只在用域名访问时替换），界面上的 Base URL 就显示懒猫域名
-
 ## 使用
 
 1. 打开控制台：懒猫客户端点启动器入口即可（inject 会把 Key 注入到地址）；其他浏览器/工具手动访问 `https://<域名>/?k=<Web Key>`，带一次后写 400 天 Cookie
