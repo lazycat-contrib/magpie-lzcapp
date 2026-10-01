@@ -57,6 +57,19 @@ services:
       # 网关监听地址不覆盖，用镜像默认的 0.0.0.0:3425：微服入口要把 /v1、/v1beta 转发进来。
       # 未在控制台打开「Share on local network」前，网关按上游设计对外接受任意 Key，
       # 所以安装后请尽快在控制台开启共享（见 usage）。
+      # 容器里 magpie 只看得到容器自己的地址，用这个把对外的 base URL 告诉它：
+      # 控制台「网关」页显示的、CLI 打印的、写进 agent 配置的都是它。
+      - MAGPIE_PUBLIC_URL=https://{{ .S.AppDomain }}
+    healthcheck:
+      # 镜像自带的健康检查（distroless 里没有 curl，也不需要）
+      test:
+        - CMD
+        - /magpie
+        - healthcheck
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
     binds:
       - /lzcapp/var/config:/config
 usage: |
@@ -69,6 +82,8 @@ usage: |
   注意：控制台只由这个 Web Key 保护（本应用已关闭微服账号鉴权），默认值在开源仓库里可见，建议在安装向导里改成只有你知道的 Key。
 
   【让外部 agent 用上网关】
+  本应用已把对外地址设成应用域名，控制台「网关」页里显示的 base URL 可直接复制使用
+  （OpenAI 兼容：https://你的域名/v1；Anthropic / Gemini：https://你的域名）。
   1. 先打开控制台，进入 Settings → Share on local network，打开局域网共享，它会生成一个 sk-magpie-… 的 Key；
   2. 把 agent 指向应用域名，API Key 填上面那个共享 Key：
        OpenAI 兼容：base_url = https://你的域名/v1
@@ -77,5 +92,11 @@ usage: |
   注意：打开共享之前，网关对能访问到本应用域名的人一律放行（任意 Key 都行，这是上游的默认行为），
   请安装后先完成第 1 步。打开共享后，请求必须携带上面那个共享 Key，带错 Key 会被拒绝。
 
+  【订阅登录】
+  在容器里发起 Claude / ChatGPT 这类订阅登录时，浏览器最后会跳回 localhost（你自己的机器），那个页面打不开：
+  把地址栏里整条地址复制出来，粘进登录流程的 Callback URL 输入框即可。
+  （也可以 docker exec 进容器跑 /magpie accounts add codex，效果一样。）
+
   【数据】
-  账号、API Key、登录态都持久化在 /lzcapp/var/config（容器内 /config），应用升级不丢；需要迁移或备份时整目录拷走即可。
+  镜像把东西都放在 /config：magpie 自己的文件、登录态（HOME 也在里面）和插件缓存，
+  本应用把它持久化在 /lzcapp/var/config，升级/重装不丢；需要迁移或备份时整目录拷走即可。
