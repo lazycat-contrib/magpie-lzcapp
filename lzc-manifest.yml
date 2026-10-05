@@ -48,10 +48,10 @@ application:
 services:
   magpie:
     user: root
-    # upstream: ghcr.io/yetone/magpie:0.1.1050
+    # upstream: ghcr.io/yetone/magpie:0.1.1071
     # 官方商店交付（delivery.mode=lazycat）时由 Action 转存为
     # registry.lazycat.cloud/czyt/yetone/magpie:<hash> 并改写此行
-    image: registry.lazycat.cloud/czyt/yetone/magpie:44b3413f8909cd89
+    image: registry.lazycat.cloud/czyt/yetone/magpie:938517ddf836f03c
     # 镜像默认 CMD 是 serve（只跑网关）；web 会同时把网关起在旁边并监听 3430。
     # distroless 镜像没有 shell，command 必须以 exec 形式追加到 ENTRYPOINT /magpie 之后。
     command: web --addr 0.0.0.0:3430 --no-open
