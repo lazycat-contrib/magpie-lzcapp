@@ -1,5 +1,5 @@
 package: cloud.lazycat.app.magpie
-version: 0.1.1071
+version: 0.1.1076
 name: Magpie
 description: Every agent's model, one place. An OpenAI/Anthropic/Gemini-compatible gateway and web console for Codex, Claude Code, OpenCode and more.
 min_os_version: 1.5.0
