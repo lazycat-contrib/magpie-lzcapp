@@ -63,7 +63,13 @@ services:
       # 所以安装后请尽快在控制台开启共享（见 usage）。
       # 容器里 magpie 只看得到容器自己的地址，用这个把对外的 base URL 告诉它：
       # 控制台「网关」页显示的、CLI 打印的、写进 agent 配置的都是它。
-      - MAGPIE_PUBLIC_URL=https://{{ .S.AppDomain }}
+{{if .U.use_custom_domain}}
+      # 自定义域名：TLS 由外部反向代理/CDN 终止，外部 agent 用你自己的域名访问
+      - MAGPIE_PUBLIC_URL=https://{{.U.custom_domain}}
+{{else}}
+      # 默认：懒猫微服域名
+      - MAGPIE_PUBLIC_URL=https://{{.S.AppDomain}}
+{{end}}
     healthcheck:
       # 镜像自带的健康检查（distroless 里没有 curl，也不需要）
       test:
@@ -82,11 +88,12 @@ usage: |
   【打开控制台】
   直接点启动器入口或打开应用域名即可（服务端会自动跳到带 Key 的地址）；也可以手动访问：
       https://你的域名/?k=<Web Key>
+  安装向导里还有「使用自定义域名」开关与域名输入框：打开开关后，把域名自行指向本应用并在外部终止 TLS（Cloudflare/自有反代）即可（控制台给 agent 生成的 base URL 会用它；关闭则用微服域名）。
   Web Key 在安装向导里填写（默认 sk-magpie-lazycat-web；至少 16 个字符，只能用字母、数字与 - . _ ~）。带 Key 打开一次后会写入 Cookie，之后裸域名即可。
   注意：控制台只由这个 Web Key 保护（本应用已关闭微服账号鉴权），默认值在开源仓库里可见，建议在安装向导里改成只有你知道的 Key。
 
   【让外部 agent 用上网关】
-  本应用已把对外地址设成应用域名，控制台「网关」页里显示的 base URL 可直接复制使用
+  本应用已把对外地址设成应用域名（安装向导里填了自定义域名时用它），控制台「网关」页里显示的 base URL 可直接复制使用
   （OpenAI 兼容：https://你的域名/v1；Anthropic / Gemini：https://你的域名）。
   1. 先打开控制台，进入 Settings → Share on local network，打开局域网共享，它会生成一个 sk-magpie-… 的 Key；
   2. 把 agent 指向应用域名，API Key 填上面那个共享 Key：

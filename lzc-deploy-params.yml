@@ -5,18 +5,56 @@ params:
       description: "Key for the browser console (16+ chars, letters/digits/ - . _ ~). Opening the app redirects to ?k=<this key> when it is missing; other browsers can open https://<your-domain>/?k=<this key> once, then a cookie remembers it."
       default_value: "sk-magpie-lazycat-web"
 
+    - id: use_custom_domain
+      type: bool
+      name: "Use a custom domain"
+      description: "Turn on to make the console print your own domain in the base URLs it shows for agents. Point the domain at this app and terminate TLS externally (e.g. Cloudflare or your own reverse proxy). Leave off to keep using the LazyCat-provided domain."
+      default_value: false
+      optional: true
+
+    - id: custom_domain
+      type: string
+      name: "Custom Domain"
+      description: "Custom domain, without https:// or http:// (used only when the switch above is on)."
+      default_value: ""
+      optional: true
+
 locales:
     zh:
+        use_custom_domain:
+            name: "使用自定义域名"
+            description: "打开后，控制台给 agent 生成的 base URL 用下面的自定义域名（需自行把域名指到本应用并在外部终止 TLS）；关闭则用懒猫微服域名。"
+
+        custom_domain:
+            name: "自定义域名"
+            description: "自定义域名（不带 https:// 或 http://），只在上面开关打开时生效。请自行把域名指向本应用并在外部终止 TLS（如 Cloudflare 或自有反代）。"
+
         web_key:
             name: "控制台 Web Key"
             description: "控制台访问密钥（至少 16 个字符，只能用字母、数字与 - . _ ~）。打开应用时服务端会把未带 Key 的请求跳到 ?k=该密钥；其他浏览器也可手动访问 https://你的域名/?k=该密钥，带一次后写入 Cookie。"
 
     zh_CN:
+        use_custom_domain:
+            name: "使用自定义域名"
+            description: "打开后，控制台给 agent 生成的 base URL 用下面的自定义域名（需自行把域名指到本应用并在外部终止 TLS）；关闭则用懒猫微服域名。"
+
+        custom_domain:
+            name: "自定义域名"
+            description: "自定义域名（不带 https:// 或 http://），只在上面开关打开时生效。请自行把域名指向本应用并在外部终止 TLS（如 Cloudflare 或自有反代）。"
+
         web_key:
             name: "控制台 Web Key"
             description: "控制台访问密钥（至少 16 个字符，只能用字母、数字与 - . _ ~）。打开应用时服务端会把未带 Key 的请求跳到 ?k=该密钥；其他浏览器也可手动访问 https://你的域名/?k=该密钥，带一次后写入 Cookie。"
 
     en:
+        use_custom_domain:
+            name: "Use a custom domain"
+            description: "When on, the console prints your own domain in the base URLs for agents (point the domain at this app and terminate TLS externally). When off, the LazyCat-provided domain is used."
+
+        custom_domain:
+            name: "Custom Domain"
+            description: "Custom domain, without https:// or http:// (used only when the switch above is on)."
+
         web_key:
             name: "Web Key"
             description: "Console key (16+ chars, letters/digits/ - . _ ~). Opening the app redirects to ?k=<this key> when it is missing; other browsers need https://<your-domain>/?k=<this key> once, then a cookie remembers it."
