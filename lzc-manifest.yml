@@ -64,8 +64,13 @@ services:
       # 容器里 magpie 只看得到容器自己的地址，用这个把对外的 base URL 告诉它：
       # 控制台「网关」页显示的、CLI 打印的、写进 agent 配置的都是它。
 {{if .U.use_custom_domain}}
+{{if .U.custom_domain}}
       # 自定义域名：TLS 由外部反向代理/CDN 终止，外部 agent 用你自己的域名访问
       - MAGPIE_PUBLIC_URL=https://{{.U.custom_domain}}
+{{else}}
+      # 开了开关但没填域名（域名是可选参数）：退回懒猫微服域名
+      - MAGPIE_PUBLIC_URL=https://{{.S.AppDomain}}
+{{end}}
 {{else}}
       # 默认：懒猫微服域名
       - MAGPIE_PUBLIC_URL=https://{{.S.AppDomain}}

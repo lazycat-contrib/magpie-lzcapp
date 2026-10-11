@@ -15,7 +15,7 @@ params:
     - id: custom_domain
       type: string
       name: "Custom Domain"
-      description: "Custom domain, without https:// or http:// (used only when the switch above is on)."
+      description: "Optional. Custom domain, without https:// or http://; used only when the switch above is on. Leave empty to keep using the LazyCat-provided domain."
       default_value: ""
       optional: true
 
@@ -27,7 +27,7 @@ locales:
 
         custom_domain:
             name: "自定义域名"
-            description: "自定义域名（不带 https:// 或 http://），只在上面开关打开时生效。请自行把域名指向本应用并在外部终止 TLS（如 Cloudflare 或自有反代）。"
+            description: "可选。自定义域名（不带 https:// 或 http://），只在上面开关打开时生效；留空则用懒猫微服域名。请自行把域名指向本应用并在外部终止 TLS（如 Cloudflare 或自有反代）。"
 
         web_key:
             name: "控制台 Web Key"
@@ -40,7 +40,7 @@ locales:
 
         custom_domain:
             name: "自定义域名"
-            description: "自定义域名（不带 https:// 或 http://），只在上面开关打开时生效。请自行把域名指向本应用并在外部终止 TLS（如 Cloudflare 或自有反代）。"
+            description: "可选。自定义域名（不带 https:// 或 http://），只在上面开关打开时生效；留空则用懒猫微服域名。请自行把域名指向本应用并在外部终止 TLS（如 Cloudflare 或自有反代）。"
 
         web_key:
             name: "控制台 Web Key"
@@ -53,7 +53,7 @@ locales:
 
         custom_domain:
             name: "Custom Domain"
-            description: "Custom domain, without https:// or http:// (used only when the switch above is on)."
+            description: "Optional. Custom domain, without https:// or http://; used only when the switch above is on. Leave empty to keep using the LazyCat-provided domain."
 
         web_key:
             name: "Web Key"
