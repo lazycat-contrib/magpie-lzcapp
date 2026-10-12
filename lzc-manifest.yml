@@ -101,7 +101,7 @@ usage: |
   【让外部 agent 用上网关】
   本应用已把对外地址设成应用域名（安装向导里填了自定义域名时用它），控制台「网关」页里显示的 base URL 可直接复制使用
   （OpenAI 兼容：https://你的域名/v1；Anthropic / Gemini：https://你的域名）。
-  1. 先打开控制台，进入 Settings → Share on local network，打开局域网共享，它会生成一个 sk-magpie-… 的 Key；
+  1. 打开 设置 → 局域网共享：打开它会另外生成一个名为 Magpie 的网关密钥，而不论开关如何，网关都会向容器外的请求要密钥。你也可以自己建一个Key。
   2. 把 agent 指向应用域名，API Key 填上面那个共享 Key：
        OpenAI 兼容：base_url = https://你的域名/v1
        Anthropic：  base_url = https://你的域名
