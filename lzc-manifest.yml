@@ -74,8 +74,6 @@ services:
     # distroless 镜像没有 shell，command 必须以 exec 形式追加到 ENTRYPOINT /magpie 之后。
     command: web --addr 0.0.0.0:3430 --no-open
     environment:
-      # 控制台访问密钥，固定下来（否则每次重启都会换 Key）
-      - MAGPIE_WEB_KEY={{ .U.web_key }}
       - MAGPIE_WEB_SIGN_IN=lazycat
       # 网关监听地址不覆盖，用镜像默认的 0.0.0.0:3425：微服入口要把 /v1、/v1beta 转发进来。
       # 未在控制台打开「Share on local network」前，网关按上游设计对外接受任意 Key，
