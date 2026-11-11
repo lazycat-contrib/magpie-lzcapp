@@ -1,10 +1,4 @@
 params:
-    - id: web_key
-      type: string
-      name: "Web Key"
-      description: "Key for the browser console (16+ chars, letters/digits/ - . _ ~). Opening the app redirects to ?k=<this key> when it is missing; other browsers can open https://<your-domain>/?k=<this key> once, then a cookie remembers it."
-      default_value: "sk-magpie-lazycat-web"
-
     - id: use_custom_domain
       type: bool
       name: "Use a custom domain"
