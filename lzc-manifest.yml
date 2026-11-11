@@ -45,24 +45,7 @@ application:
     - id: console
       title: "Magpie 控制台"
       path: /
-  injects:
-    # 浏览器不带 Key 打开 / 时 magpie 回 401「open the link magpie web printed」，
-    # 在响应阶段把它改写成 303 跳转到 ?k=<Web Key>，点开应用即无感进入控制台。
-    # 脚本出错只记日志、原样放过。
-    - id: console-key
-      on: response
-      auth_required: false
-      when:
-        - /
-      do:
-        - src: |
-            try {
-              if (ctx.status === 401 && ctx.params && ctx.params.key) {
-                ctx.response.send(303, "", { location: "/?k=" + encodeURIComponent(ctx.params.key) });
-              }
-            } catch (e) { console.log("console-key inject:", e); }
-          params:
-            key: "{{ .U.web_key }}"
+  
 services:
   magpie:
     user: root
