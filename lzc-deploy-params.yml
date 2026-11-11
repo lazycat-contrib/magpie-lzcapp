@@ -23,9 +23,6 @@ locales:
             name: "自定义域名"
             description: "可选。自定义域名（不带 https:// 或 http://），只在上面开关打开时生效；留空则用懒猫微服域名。请自行把域名指向本应用并在外部终止 TLS（如 Cloudflare 或自有反代）。"
 
-        web_key:
-            name: "控制台 Web Key"
-            description: "控制台访问密钥（至少 16 个字符，只能用字母、数字与 - . _ ~）。打开应用时服务端会把未带 Key 的请求跳到 ?k=该密钥；其他浏览器也可手动访问 https://你的域名/?k=该密钥，带一次后写入 Cookie。"
 
     zh_CN:
         use_custom_domain:
@@ -36,9 +33,6 @@ locales:
             name: "自定义域名"
             description: "可选。自定义域名（不带 https:// 或 http://），只在上面开关打开时生效；留空则用懒猫微服域名。请自行把域名指向本应用并在外部终止 TLS（如 Cloudflare 或自有反代）。"
 
-        web_key:
-            name: "控制台 Web Key"
-            description: "控制台访问密钥（至少 16 个字符，只能用字母、数字与 - . _ ~）。打开应用时服务端会把未带 Key 的请求跳到 ?k=该密钥；其他浏览器也可手动访问 https://你的域名/?k=该密钥，带一次后写入 Cookie。"
 
     en:
         use_custom_domain:
@@ -49,6 +43,4 @@ locales:
             name: "Custom Domain"
             description: "Optional. Custom domain, without https:// or http://; used only when the switch above is on. Leave empty to keep using the LazyCat-provided domain."
 
-        web_key:
-            name: "Web Key"
-            description: "Console key (16+ chars, letters/digits/ - . _ ~). Opening the app redirects to ?k=<this key> when it is missing; other browsers need https://<your-domain>/?k=<this key> once, then a cookie remembers it."
+
