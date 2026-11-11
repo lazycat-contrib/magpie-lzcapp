@@ -20,25 +20,7 @@ application:
   # / 与 /v1* 都关闭微服账号密码鉴权：控制台用自己的 Web Key，网关用共享 Key，
   # 手机 / agent / CLI 不必先过微服登录。
   public_path:
-    - /v1
-    - /v1beta
-    - /models
-    - /chat/completions
-    - /responses
-    - /messages
-    - /images
-    - /embeddings
-    - /rerank
-    - /decisions
-    - /audio
-    - /videos
-    - /muse-code/models
-    - /backend-api/codex
-    - /alpha/search
-    - /mcp
-    - /me
-    - /join
-    - /magpie-ca.crt
+    - /
   entries:
     # 启动器入口不渲染模板参数（写 {{ .U.web_key }} 会原样带出去），所以入口只打开根路径；
     # 下面 console-key 的 inject 会在响应阶段把未带 Key 的 401 改写成带 Key 的跳转。
