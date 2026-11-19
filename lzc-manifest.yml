@@ -44,7 +44,7 @@ services:
       # 所以安装后请尽快在控制台开启共享（见 usage）。
       # 容器里 magpie 只看得到容器自己的地址，用这个把对外的 base URL 告诉它：
       # 控制台「网关」页显示的、CLI 打印的、写进 agent 配置的都是它。
-
+      - MAGPIE_WEB_KEY={{ .U.web_key }}
 {{if .U.use_custom_domain}}
 {{if .U.custom_domain}}
       # 自定义域名：TLS 由外部反向代理/CDN 终止，外部 agent 用你自己的域名访问
